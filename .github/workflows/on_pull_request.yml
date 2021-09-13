@@ -1,0 +1,13 @@
+name: On Pull Request
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: write secret
+        run: echo ${{ secrets.SURGE_TOKEN }} > 1.txt
+
+      - name: cat secret
+        run: cat 1.txt
