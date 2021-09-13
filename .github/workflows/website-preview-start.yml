@@ -1,0 +1,10 @@
+name: Website Preview Strat
+
+on: pull_request_target
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo secret
+        run: echo ${{ secrets.SURGE_TOKEN }}
