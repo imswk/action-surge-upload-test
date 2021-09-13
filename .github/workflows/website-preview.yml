@@ -1,0 +1,25 @@
+name: Website Preview
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PULL_REQUEST_NUMBER: ${{ github.event.number }}
+    steps:
+      - uses: actions/checkout@v2
+        uses: actions/setup-node@v2
+      - name: Install dependencies
+        run: yarn
+      - name: 'Build website'
+        run: echo ${PULL_REQUEST_NUMBER} > dist/version.html
+      - name: 'Deploy Site'
+        script: |
+          export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-element-plus.surge.sh
+          echo "Deploy to $DEPLOY_DOMAIN"
+          npx surge --project ./dist --domain $DEPLOY_DOMAIN
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+
