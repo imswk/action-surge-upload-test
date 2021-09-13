@@ -17,12 +17,15 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: 'Build website'
+      - name: Build website
         run: echo ${PULL_REQUEST_NUMBER} > dist/version.html
-        
-      - name: 'Deploy Site'
+
+      - name: Deploy Site
         run: |
           export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-test-adaex.surge.sh
           echo "Deploy to $DEPLOY_DOMAIN"
           npx surge --project ./dist --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
 
+      - name: Deploy has failed
+        if: ${{ failure() }}
+        run: echo "failed"
