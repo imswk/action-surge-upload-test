@@ -17,7 +17,7 @@ jobs:
       - name: 'Build website'
         run: echo ${PULL_REQUEST_NUMBER} > dist/version.html
       - name: 'Deploy Site'
-        script: |
+        run: |
           export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-element-plus.surge.sh
           echo "Deploy to $DEPLOY_DOMAIN"
           npx surge --project ./dist --domain $DEPLOY_DOMAIN
