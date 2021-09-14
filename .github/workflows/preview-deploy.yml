@@ -19,11 +19,11 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
-          name: pr-number
+          name: pr
 
       - name: Output pr number
         id: pr
-        run: echo "::set-output name=id::$(<pr-number.txt)"
+        run: echo "::set-output name=id::$(<pr.txt)"
 
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
@@ -34,11 +34,29 @@ jobs:
 
       - name: Deploy Site
         run: |
-          export PULL_REQUEST_NUMBER=$(<pr-number.txt)
           export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-test-adaex.surge.sh
           echo "Deploy to $DEPLOY_DOMAIN"
           npx surge --project ./ --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
+        env:
+          PULL_REQUEST_NUMBER: ${{ steps.pr.outputs.id }}
 
-      - name: Deploy has failed
+      - name: Update status comment
+        uses: actions-cool/maintain-one-comment@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            [<img width="306" src="https://user-images.githubusercontent.com/5378891/72400743-23dbb200-3785-11ea-9d13-1a2d92743846.png">](https://preview-${{ steps.pr.outputs.id }}-ant-design.surge.sh)
+            <!-- AUTO_PREVIEW_HOOK -->
+          body-include: '<!-- AUTO_PREVIEW_HOOK -->'
+          number: ${{ steps.pr.outputs.id }}
+
+      - name: The job has failed
         if: ${{ failure() }}
-        run: echo "failed"
+        uses: actions-cool/maintain-one-comment@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            <img width="534" src="https://user-images.githubusercontent.com/5378891/75333447-1e63a280-58c1-11ea-975d-235367fd1522.png">
+            <!-- AUTO_PREVIEW_HOOK -->
+          body-include: '<!-- AUTO_PREVIEW_HOOK -->'
+          number: ${{ steps.pr.outputs.id }}
