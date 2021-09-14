@@ -1,4 +1,4 @@
-name: Website Preview 1
+name: Website Preview 2
 
 on:
   workflow_run:
