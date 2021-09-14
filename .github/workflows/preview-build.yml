@@ -1,0 +1,46 @@
+name: Preview Build
+
+on: pull_request
+
+jobs:
+  build:
+    name: Website Build 
+    runs-on: ubuntu-latest
+    env:
+      PULL_REQUEST_NUMBER: ${{ github.event.number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: node_modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build website
+        run: echo ${PULL_REQUEST_NUMBER} > dist/version.html
+
+      - name: Upload artifact    
+        uses: actions/upload-artifact@v2
+        with:
+          name: website-dist
+          path: dist/
+          retention-days: 1
+
+      - name: Save pr number
+        if: ${{ always() }}
+        run: echo ${PULL_REQUEST_NUMBER} > ./pr-number.txt
+
+      - name: Upload pr number
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr-number
+          path: ./pr-number.txt
