@@ -29,6 +29,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
           name: website-dist
 
       - name: Deploy Site
@@ -36,7 +37,7 @@ jobs:
           export PULL_REQUEST_NUMBER=$(<pr-number.txt)
           export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-test-adaex.surge.sh
           echo "Deploy to $DEPLOY_DOMAIN"
-          npx surge --project ./dist --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
+          npx surge --project ./ --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
 
       - name: Deploy has failed
         if: ${{ failure() }}
