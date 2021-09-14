@@ -1,0 +1,43 @@
+name: Preview Deploy
+
+on:
+  workflow_run:
+    workflows: ["On Pull Request"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Website Deploy
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+
+      - name: Download pr number
+        uses: actions/download-artifact@v2
+        with:
+          name: pr-number
+          path: ./pr-number.txt
+
+      - name: Output pr number
+        id: pr
+        run: echo "::set-output name=id::$(<pr-number.txt)"
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: website-dist
+          path: dist/
+
+      - name: Deploy Site
+        run: |
+          export PULL_REQUEST_NUMBER=$(<pr-number.txt)
+          export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-test-adaex.surge.sh
+          echo "Deploy to $DEPLOY_DOMAIN"
+          npx surge --project ./dist --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
+
+      - name: Deploy has failed
+        if: ${{ failure() }}
+        run: echo "failed"
