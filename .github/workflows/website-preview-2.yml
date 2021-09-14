@@ -1,6 +1,10 @@
-name: Website Preview
+name: Website Preview 1
 
-on: pull_request_target
+on:
+  workflow_run:
+    workflows: ["On Pull Request"]
+    types:
+      - completed
 
 jobs:
   build:
@@ -22,7 +26,7 @@ jobs:
 
       - name: Deploy Site
         run: |
-          export DEPLOY_DOMAIN=https://preview-${PULL_REQUEST_NUMBER}-test-adaex.surge.sh
+          export DEPLOY_DOMAIN=https://preview2-${PULL_REQUEST_NUMBER}-test-adaex.surge.sh
           echo "Deploy to $DEPLOY_DOMAIN"
           npx surge --project ./dist --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }}
 
